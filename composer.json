@@ -24,16 +24,11 @@
     "extra": {
         "class": "MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin"
     },
-    "config": {
-        "platform": {
-            "php": "5.3.3"
-        }
-    },
     "require": {
-        "php": ">=5.3.3 <7.0",
+        "php": ">=7.0",
         "composer-plugin-api": "*"
     },
     "require-dev": {
-        "composer/composer": "1.2.4"
+        "composer/composer": "1.7.2"
     }
 }

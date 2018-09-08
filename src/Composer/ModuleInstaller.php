@@ -22,7 +22,7 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * {@inheritdoc}
      */
-    public function getInstallPath(PackageInterface $package)
+    public function getInstallPath(PackageInterface $package): string
     {
         $separator  = strpos($package->getPrettyName(), '/') + 1;
         $moduleName = substr($package->getPrettyName(), $separator);
@@ -33,7 +33,7 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * {@inheritdoc}
      */
-    public function supports($packageType)
+    public function supports($packageType): bool
     {
         return self::PACKAGE_TYPE === $packageType;
     }
