@@ -1,6 +1,6 @@
 {
     "name": "magicsunday/webtrees-module-installer-plugin",
-    "description": "A composer plugin installer to install webtrees modules directly to the modules_v3 directory.",
+    "description": "A composer plugin installer to install webtrees modules directly to the modules_v4 directory.",
     "license": "GPL-3.0-or-later",
     "type": "composer-plugin",
     "keywords": [

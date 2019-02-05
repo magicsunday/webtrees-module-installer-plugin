@@ -17,7 +17,7 @@ use Composer\Package\PackageInterface;
 class ModuleInstaller extends LibraryInstaller
 {
     const PACKAGE_TYPE = 'webtrees-module';
-    const MODULES_DIR  = 'modules_v3/';
+    const MODULES_DIR  = 'modules_v4/';
 
     /**
      * {@inheritdoc}

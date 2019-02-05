@@ -1,5 +1,5 @@
 # webtrees-module-installer-plugin
-A composer plugin installer to install [webtrees](https://www.webtrees.net) modules directly to the ``modules_v3`` directory.
+A composer plugin installer to install [webtrees](https://www.webtrees.net) modules directly to the ``modules_v4`` directory.
 
 ## Usage
 To install a new webtrees module with composer, just add this module to the ``require`` section
