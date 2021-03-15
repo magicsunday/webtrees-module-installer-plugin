@@ -1,7 +1,9 @@
 <?php
+
 /**
  * See LICENSE.md file for further details.
  */
+
 namespace MagicSunday\Webtrees\Composer;
 
 use Composer\Installer\LibraryInstaller;
@@ -16,12 +18,9 @@ use Composer\Package\PackageInterface;
  */
 class ModuleInstaller extends LibraryInstaller
 {
-    const PACKAGE_TYPE = 'webtrees-module';
-    const MODULES_DIR  = 'modules_v4/';
+    public const PACKAGE_TYPE = 'webtrees-module';
+    public const MODULES_DIR  = 'modules_v4/';
 
-    /**
-     * {@inheritdoc}
-     */
     public function getInstallPath(PackageInterface $package): string
     {
         $separator  = strpos($package->getPrettyName(), '/') + 1;
@@ -30,9 +29,6 @@ class ModuleInstaller extends LibraryInstaller
         return self::MODULES_DIR . $moduleName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports($packageType): bool
     {
         return self::PACKAGE_TYPE === $packageType;

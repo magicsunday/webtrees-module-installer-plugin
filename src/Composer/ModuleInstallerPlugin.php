@@ -1,7 +1,9 @@
 <?php
+
 /**
  * See LICENSE.md file for further details.
  */
+
 namespace MagicSunday\Webtrees\Composer;
 
 use Composer\Composer;
@@ -18,11 +20,34 @@ use Composer\Plugin\PluginInterface;
 class ModuleInstallerPlugin implements PluginInterface
 {
     /**
-     * {@inheritdoc}
+     * @param Composer    $composer
+     * @param IOInterface $io
+     *
+     * @return void
      */
     public function activate(Composer $composer, IOInterface $io)
     {
         $installer = new ModuleInstaller($io, $composer);
         $composer->getInstallationManager()->addInstaller($installer);
+    }
+
+    /**
+     * @param Composer    $composer
+     * @param IOInterface $io
+     *
+     * @return void
+     */
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    /**
+     * @param Composer    $composer
+     * @param IOInterface $io
+     *
+     * @return void
+     */
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
     }
 }
