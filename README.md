@@ -1,7 +1,8 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://opensource.org/licenses/MIT)
 
-[![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat)](https://github.com/phpstan/phpstan)
-[![PHP_CodeSniffer](https://img.shields.io/badge/PHP_CodeSniffer-PSR12-brightgreen.svg?style=flat)](https://github.com/squizlabs/PHP_CodeSniffer)
+[![PHPStan](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpstan.yml/badge.svg)](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpstan.yml)
+[![PHP_CodeSniffer](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpcs.yml/badge.svg)](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpcs.yml)
+
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/badges/build.png?b=master)](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/build-status/master)
 [![Code Climate](https://codeclimate.com/github/magicsunday/webtrees-module-installer-plugin/badges/gpa.svg)](https://codeclimate.com/github/magicsunday/webtrees-module-installer-plugin)
@@ -13,7 +14,7 @@ A composer plugin installer to install [webtrees](https://www.webtrees.net) modu
 
 ### System Requirements
 
-PHP 7.0+ or PHP 8.0+
+PHP 7.4+ or PHP 8.0+
 
 ## Usage
 To install a new webtrees module with composer, just add this module to the ``require`` section

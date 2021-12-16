@@ -25,7 +25,7 @@ class ModuleInstallerPlugin implements PluginInterface
      *
      * @return void
      */
-    public function activate(Composer $composer, IOInterface $io)
+    public function activate(Composer $composer, IOInterface $io): void
     {
         $installer = new ModuleInstaller($io, $composer);
         $composer->getInstallationManager()->addInstaller($installer);
@@ -37,7 +37,7 @@ class ModuleInstallerPlugin implements PluginInterface
      *
      * @return void
      */
-    public function deactivate(Composer $composer, IOInterface $io)
+    public function deactivate(Composer $composer, IOInterface $io): void
     {
     }
 
@@ -47,7 +47,7 @@ class ModuleInstallerPlugin implements PluginInterface
      *
      * @return void
      */
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function uninstall(Composer $composer, IOInterface $io): void
     {
     }
 }
