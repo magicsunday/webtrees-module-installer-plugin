@@ -1,11 +1,8 @@
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://opensource.org/licenses/MIT)
+![Latest version](https://img.shields.io/github/v/release/magicsunday/webtrees-module-installer-plugin?sort=semver)
+![License](https://img.shields.io/github/license/magicsunday/webtrees-module-installer-plugin)
+![PHPStan](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpstan.yml/badge.svg)
+![PHPCodeSniffer](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpcs.yml/badge.svg)
 
-[![PHPStan](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpstan.yml/badge.svg)](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpstan.yml)
-[![PHP_CodeSniffer](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpcs.yml/badge.svg)](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpcs.yml)
-
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/?branch=master)
-[![Build Status](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/badges/build.png?b=master)](https://scrutinizer-ci.com/g/magicsunday/webtrees-module-installer-plugin/build-status/master)
-[![Code Climate](https://codeclimate.com/github/magicsunday/webtrees-module-installer-plugin/badges/gpa.svg)](https://codeclimate.com/github/magicsunday/webtrees-module-installer-plugin)
 
 # webtrees-module-installer-plugin
 A composer plugin installer to install [webtrees](https://www.webtrees.net) modules directly to the ``modules_v4`` directory.
@@ -58,5 +55,5 @@ composer require your-vendor-name/your-package-name[:optional branch name]
 ```shell
 composer update
 vendor/bin/phpcs src/ --standard=PSR12
-vendor/bin/phpstan analyse -c phpstan.neon
+vendor/bin/phpstan analyse --xdebug -c phpstan.neon
 ```

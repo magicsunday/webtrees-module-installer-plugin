@@ -1,8 +1,13 @@
 <?php
 
 /**
- * See LICENSE.md file for further details.
+ * This file is part of the package magicsunday/webtrees-module-installer-plugin.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Composer;
 
@@ -21,15 +26,38 @@ class ModuleInstaller extends LibraryInstaller
     public const PACKAGE_TYPE = 'webtrees-module';
     public const MODULES_DIR  = 'modules_v4/';
 
+    /**
+     * Returns the absolute installation path of a package.
+     *
+     * @param PackageInterface $package
+     *
+     * @return string
+     */
     public function getInstallPath(PackageInterface $package): string
     {
-        $separator  = strpos($package->getPrettyName(), '/') + 1;
-        $moduleName = substr($package->getPrettyName(), $separator);
+        $separatorPos = strpos($package->getPrettyName(), '/');
+        $modulePath   = self::MODULES_DIR;
 
-        return self::MODULES_DIR . $moduleName;
+        if ($separatorPos !== false) {
+            /** @var string|false $moduleName */
+            $moduleName = substr($package->getPrettyName(), $separatorPos + 1);
+
+            if ($moduleName !== false) {
+                $modulePath .= $moduleName;
+            }
+        }
+
+        return $modulePath;
     }
 
-    public function supports($packageType): bool
+    /**
+     * Decides if the installer supports the given type.
+     *
+     * @param string $packageType
+     *
+     * @return bool
+     */
+    public function supports(string $packageType): bool
     {
         return self::PACKAGE_TYPE === $packageType;
     }
