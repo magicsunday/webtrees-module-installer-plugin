@@ -11,7 +11,7 @@ A composer plugin installer to install [webtrees](https://www.webtrees.net) modu
 
 ### System Requirements
 
-PHP 7.4+ or PHP 8.0+
+PHP 8.1+
 
 ## Usage
 To install a new webtrees module with composer, just add this module to the ``require`` section
