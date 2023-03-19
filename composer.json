@@ -25,7 +25,7 @@
         "class": "MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.1",
         "composer-plugin-api": "^2.1"
     },
     "require-dev": {
