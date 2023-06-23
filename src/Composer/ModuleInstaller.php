@@ -23,7 +23,14 @@ use Composer\Package\PackageInterface;
  */
 class ModuleInstaller extends LibraryInstaller
 {
+    /**
+     * The supported package type.
+     */
     public const PACKAGE_TYPE = 'webtrees-module';
+
+    /**
+     * The directory used to install the module into.
+     */
     public const MODULES_DIR  = 'modules_v4/';
 
     /**
