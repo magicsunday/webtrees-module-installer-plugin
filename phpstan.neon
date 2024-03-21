@@ -1,13 +1,17 @@
 includes:
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
-    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-strict-rules/rules.neon
+    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - %currentWorkingDirectory%/phpstan-baseline.neon
 
 parameters:
     # You can currently choose from 10 levels (0 is the loosest and 9 is the strictest).
-    level: max
+    level: 9
 
     paths:
-        - src/
+        - %currentWorkingDirectory%/src/
 
     excludePaths:
-        - vendor/
+        - %currentWorkingDirectory%/.build/
+
+    fileExtensions:
+        - php

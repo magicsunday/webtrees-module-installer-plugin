@@ -31,7 +31,7 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * The directory used to install the module into.
      */
-    public const MODULES_DIR  = 'modules_v4/';
+    public const MODULES_DIR = 'modules_v4/';
 
     /**
      * Returns the absolute installation path of a package.
@@ -66,6 +66,6 @@ class ModuleInstaller extends LibraryInstaller
      */
     public function supports(string $packageType): bool
     {
-        return self::PACKAGE_TYPE === $packageType;
+        return $packageType === self::PACKAGE_TYPE;
     }
 }

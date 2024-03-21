@@ -24,15 +24,46 @@
     "extra": {
         "class": "MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin"
     },
+    "config": {
+        "bin-dir": ".build/bin",
+        "vendor-dir": ".build/vendor",
+        "discard-changes": true,
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
     "require": {
-        "php": "^8.1",
+        "php": ">=8.2.0 <8.4.0",
         "composer-plugin-api": "^2.3"
     },
     "require-dev": {
         "composer/composer": "^2.5",
+        "friendsofphp/php-cs-fixer": "^3.50",
+        "overtrue/phplint": "^3.4 || ^9.0",
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-strict-rules": "^1.5",
         "phpstan/phpstan-deprecation-rules": "^1.1",
-        "squizlabs/php_codesniffer": "^3.7"
+        "rector/rector": "^1.0"
+    },
+    "scripts": {
+        "ci:test:php:lint": [
+            "phplint"
+        ],
+        "ci:test:php:phpstan": [
+            "phpstan analyze"
+        ],
+        "ci:test:php:phpstan:baseline": [
+            "phpstan analyze --generate-baseline phpstan-baseline.neon --allow-empty-baseline"
+        ],
+        "ci:test:php:rector": [
+            "rector process --config rector.php --dry-run"
+        ],
+        "ci:cgl": [
+            "php-cs-fixer fix --diff --verbose"
+        ],
+        "ci:test": [
+            "@ci:test:php:lint",
+            "@ci:test:php:phpstan",
+            "@ci:test:php:rector"
+        ]
     }
 }

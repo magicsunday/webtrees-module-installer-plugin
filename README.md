@@ -1,8 +1,6 @@
-![Latest version](https://img.shields.io/github/v/release/magicsunday/webtrees-module-installer-plugin?sort=semver)
-![License](https://img.shields.io/github/license/magicsunday/webtrees-module-installer-plugin)
-![PHPStan](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpstan.yml/badge.svg)
-![PHPCodeSniffer](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/phpcs.yml/badge.svg)
-
+[![Latest version](https://img.shields.io/github/v/release/magicsunday/webtrees-module-installer-plugin?sort=semver)](https://github.com/magicsunday/webtrees-module-installer-plugin/releases/latest)
+[![License](https://img.shields.io/github/license/magicsunday/webtrees-module-installer-plugin)](https://github.com/magicsunday/webtrees-module-installer-plugin/blob/main/LICENSE)
+[![CI](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/magicsunday/webtrees-module-installer-plugin/actions/workflows/ci.yml)
 
 # webtrees-module-installer-plugin
 A composer plugin installer to install [webtrees](https://www.webtrees.net) modules directly to the ``modules_v4`` directory.
@@ -11,7 +9,7 @@ A composer plugin installer to install [webtrees](https://www.webtrees.net) modu
 
 ### System Requirements
 
-PHP 8.1+
+PHP 8.2+
 
 ## Usage
 To install a new webtrees module with composer, just add this module to the ``require`` section
@@ -54,6 +52,10 @@ composer require your-vendor-name/your-package-name[:optional branch name]
 ## Testing
 ```shell
 composer update
-vendor/bin/phpcs src/ --standard=PSR12
-vendor/bin/phpstan analyse --xdebug -c phpstan.neon
+
+composer ci:test
+composer ci:test:php:phpstan
+composer ci:test:php:lint
+composer ci:test:php:unit
+composer ci:test:php:rector
 ```
