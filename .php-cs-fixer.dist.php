@@ -38,6 +38,7 @@ EOF;
 
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
+    ->setParallelConfig(new PhpCsFixer\Runner\Parallel\ParallelConfig(4, 8))
     ->setRules([
         '@PSR12'                          => true,
         '@PER-CS2.0'                      => true,
