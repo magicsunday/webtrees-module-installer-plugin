@@ -14,9 +14,12 @@ namespace MagicSunday\Webtrees\Composer;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use MagicSunday\Webtrees\Composer\Plugin\Config;
 
 /**
- * Composer module installer plugin.
+ * Handles the integration of custom module installers into Composer.
+ * Implements the PluginInterface to provide the required functionality
+ * for activating, deactivating, and uninstalling the plugin.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -25,6 +28,8 @@ use Composer\Plugin\PluginInterface;
 class ModuleInstallerPlugin implements PluginInterface
 {
     /**
+     * Activates the plugin by registering a custom installer with the Composer installation manager.
+     *
      * @param Composer    $composer
      * @param IOInterface $io
      *
@@ -32,27 +37,37 @@ class ModuleInstallerPlugin implements PluginInterface
      */
     public function activate(Composer $composer, IOInterface $io): void
     {
-        $installer = new ModuleInstaller($io, $composer);
-        $composer->getInstallationManager()->addInstaller($installer);
+        $installer = new ModuleInstaller($io, $composer, ModuleInstaller::PACKAGE_TYPE);
+        $installer->setPluginConfig(Config::load($composer));
+
+        $composer
+            ->getInstallationManager()
+            ->addInstaller($installer);
     }
 
     /**
-     * @param Composer    $composer
-     * @param IOInterface $io
+     * Deactivates the plugin. This method is called during the deactivation process of the Composer plugin.
+     *
+     * @param Composer    $composer the Composer instance
+     * @param IOInterface $io       the IO interface for output and input interactions
      *
      * @return void
      */
     public function deactivate(Composer $composer, IOInterface $io): void
     {
+        // Nothing to do
     }
 
     /**
-     * @param Composer    $composer
-     * @param IOInterface $io
+     * Uninstalls the plugin. This method is called during the uninstallation process of the Composer plugin.
+     *
+     * @param Composer    $composer the Composer instance
+     * @param IOInterface $io       the IO interface for output and input interactions
      *
      * @return void
      */
     public function uninstall(Composer $composer, IOInterface $io): void
     {
+        // Nothing to do
     }
 }
