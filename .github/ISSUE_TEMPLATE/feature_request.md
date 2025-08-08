@@ -1,20 +1,34 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
+name: Feature Request
+about: Suggest an enhancement for the Webtrees Module Installer Plugin
+title: '[FEATURE] '
+labels: 'enhancement'
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Problem Statement
+<!-- Describe the problem or limitation you're facing that this feature would address -->
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## Proposed Solution
+<!-- Describe the solution you'd like to see implemented -->
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## Use Case
+<!-- Explain how this feature would be used and who would benefit from it -->
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## Example Implementation
+<!-- If possible, provide an example of how this might work in practice -->
+```php
+// Example code or configuration that demonstrates the feature
+```
+
+## Alternative Solutions
+<!-- Describe any alternative solutions or workarounds you've considered -->
+
+## Additional Context
+<!-- Add any other context, screenshots, or examples about the feature request here -->
+
+## Would you be willing to contribute this feature?
+<!-- Let us know if you're interested in helping implement this feature -->
+- [ ] Yes, I'd be willing to submit a pull request
+- [ ] No, I'm just suggesting the idea
