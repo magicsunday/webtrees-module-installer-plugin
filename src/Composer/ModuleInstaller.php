@@ -11,9 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Composer;
 
+use Composer\Composer;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 use MagicSunday\Webtrees\Composer\Plugin\Config;
+use React\Promise\PromiseInterface;
 
 /**
  * Handles the installation of webtrees modules by managing the installation path,
@@ -41,6 +44,23 @@ class ModuleInstaller extends LibraryInstaller
     private Config $pluginConfig;
 
     /**
+     * Checks that provided package is installed.
+     *
+     * @param InstalledRepositoryInterface $repo
+     * @param PackageInterface             $package
+     *
+     * @return bool
+     */
+    public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package): bool
+    {
+        // Always return "false" to reinstall the packages after installing/updating Webtrees.
+        // For example, a downgrade may update only the "fisharebest/webtrees" package, while
+        // the "webtrees-module" packages remain. However, since these packages must be installed
+        // within the "fisharebest/webtrees" package, the "modules_v4" directory will otherwise be empty.
+        return false;
+    }
+
+    /**
      * Retrieves the installation path for the given package.
      *
      * @param PackageInterface $package the package for which the installation path is determined
@@ -57,6 +77,38 @@ class ModuleInstaller extends LibraryInstaller
         }
 
         return $this->getAppDirectory() . DIRECTORY_SEPARATOR . $modulePath;
+    }
+
+    /**
+     * Installation step - store the path for later processing.
+     *
+     * @param InstalledRepositoryInterface $repo    The repository in which to check
+     * @param PackageInterface             $package The package instance
+     *
+     * @return PromiseInterface<void|null>|null The installation path or a promise
+     */
+    public function install(InstalledRepositoryInterface $repo, PackageInterface $package): ?PromiseInterface
+    {
+        $promise = parent::install($repo, $package);
+
+        /** @var Composer $composer */
+        $composer = $this->composer;
+
+        return $promise?->then(
+            function () use ($composer, $package): void {
+                $installPath = $this->getInstallPath($package);
+
+                // Get the plugin instance to store the pending module
+                $plugins = $composer->getPluginManager()->getPlugins();
+
+                foreach ($plugins as $plugin) {
+                    if ($plugin instanceof ModuleInstallerPlugin) {
+                        $plugin->addPendingModule($package, $installPath);
+                        break;
+                    }
+                }
+            }
+        );
     }
 
     /**

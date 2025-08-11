@@ -28,15 +28,15 @@ use function is_string;
 class Config
 {
     /**
-     * The root package name.
-     */
-    private const ROOT_PACKAGE_NAME = 'fisharebest/webtrees';
-
-    /**
      * The vendor directory where the packages should be installed.
      */
     private const VENDOR_DIRECTORY = DIRECTORY_SEPARATOR
         . 'vendor' . DIRECTORY_SEPARATOR . 'fisharebest' . DIRECTORY_SEPARATOR . 'webtrees';
+
+    /**
+     * The root package name.
+     */
+    public const ROOT_PACKAGE_NAME = 'fisharebest/webtrees';
 
     /**
      * @var array<string, string>
