@@ -12,158 +12,232 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Composer;
 
 use Composer\Composer;
-use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Installer\PackageEvent;
+use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
-use Composer\Script\Event;
-use Composer\Script\ScriptEvents;
-use MagicSunday\Webtrees\Composer\Plugin\Config;
 
 use function sprintf;
 
 /**
- * Handles the integration of custom module installers into Composer.
- * Implements the PluginInterface to provide the required functionality
- * for activating, deactivating, and uninstalling the plugin.
+ * A Composer plugin to handle the installation, update, and uninstallation of webtrees modules.
+ * This plugin listens to various Composer events and manages the deployment of packages of type
+ * "webtrees-module" into a specific target directory within the webtrees application.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-module-installer-plugin/
  */
-class ModuleInstallerPlugin implements PluginInterface, EventSubscriberInterface
+class ModuleInstallerPlugin implements PluginInterface
 {
     /**
-     * The list of modules that should be moved.
-     *
-     * @var array<int, array{path: string, package: PackageInterface}>
+     * @var Composer
      */
-    private array $pendingModules = [];
+    private Composer $composer;
 
     /**
-     * Activates the plugin by registering a custom installer with the Composer installation manager.
+     * @var IOInterface
+     */
+    private IOInterface $io;
+
+    /**
+     * @var ModuleInstaller
+     */
+    private ModuleInstaller $installer;
+
+    /**
+     * @var array<string, InstallOperation|UpdateOperation|UninstallOperation>
+     */
+    private array $pendingPackages = [];
+
+    /**
+     * Activates the plugin by initializing and registering the custom module installer,
+     * as well as subscribing to package-level events handled by the Composer event dispatcher.
      *
-     * @param Composer    $composer
-     * @param IOInterface $io
+     * @param Composer    $composer the Composer instance to be configured with the custom installer
+     * @param IOInterface $io       the input/output interface to enable interaction with Composer
      *
      * @return void
      */
     public function activate(Composer $composer, IOInterface $io): void
     {
-        $installer = new ModuleInstaller($io, $composer, ModuleInstaller::PACKAGE_TYPE);
-        $installer->setPluginConfig(Config::load($composer));
+        $this->composer  = $composer;
+        $this->io        = $io;
+        $this->installer = new ModuleInstaller($io, $composer, ModuleInstaller::PACKAGE_TYPE);
 
+        // Register the custom installer
         $composer
             ->getInstallationManager()
-            ->addInstaller($installer);
+            ->addInstaller($this->installer);
+
+        // Subscribe to package-level events
+        $dispatcher = $composer->getEventDispatcher();
+
+        $dispatcher->addListener(PackageEvents::PRE_PACKAGE_INSTALL, $this->onPrePackageEvent(...));
+        $dispatcher->addListener(PackageEvents::PRE_PACKAGE_UPDATE, $this->onPrePackageEvent(...));
+        $dispatcher->addListener(PackageEvents::PRE_PACKAGE_UNINSTALL, $this->onPrePackageEvent(...));
+
+        $dispatcher->addListener(PackageEvents::POST_PACKAGE_INSTALL, $this->onPostPackageEvent(...));
+        $dispatcher->addListener(PackageEvents::POST_PACKAGE_UPDATE, $this->onPostPackageEvent(...));
+        $dispatcher->addListener(PackageEvents::POST_PACKAGE_UNINSTALL, $this->onPostPackageEvent(...));
     }
 
     /**
-     * Deactivates the plugin. This method is called during the deactivation process of the Composer plugin.
+     * Deactivates the plugin.
      *
      * @param Composer    $composer the Composer instance
-     * @param IOInterface $io       the IO interface for output and input interactions
+     * @param IOInterface $io       the input/output interface
      *
      * @return void
      */
     public function deactivate(Composer $composer, IOInterface $io): void
     {
-        // Nothing to do
+        // nothing to do
     }
 
     /**
-     * Uninstalls the plugin. This method is called during the uninstallation process of the Composer plugin.
+     * Uninstalls the plugin.
      *
      * @param Composer    $composer the Composer instance
-     * @param IOInterface $io       the IO interface for output and input interactions
+     * @param IOInterface $io       the input/output interface
      *
      * @return void
      */
     public function uninstall(Composer $composer, IOInterface $io): void
     {
-        // Nothing to do
+        // nothing to do
     }
 
     /**
-     * Returns an array of event names this subscriber wants to listen to.
+     * Handles actions to be performed before a package operation is executed.
      *
-     * @return array<string, string> The event names to listen to
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            // Called after the complete installation/update process
-            ScriptEvents::POST_AUTOLOAD_DUMP => 'installModules',
-        ];
-    }
-
-    /**
-     * Adds a module to the pending modules list for later installation.
-     *
-     * @param PackageInterface $package     The package to be installed
-     * @param string           $installPath The installation path
+     * @param PackageEvent $event the package event instance
      *
      * @return void
      */
-    public function addPendingModule(PackageInterface $package, string $installPath): void
+    public function onPrePackageEvent(PackageEvent $event): void
     {
-        $this->pendingModules[] = [
-            'package' => $package,
-            'path'    => $installPath,
-        ];
+        $this->installer->skipInstallation(false);
+
+        /** @var InstallOperation|UpdateOperation|UninstallOperation $operation */
+        $operation = $event->getOperation();
+        $package   = $this->getPackageFromOperation($operation);
+
+        if ($package->getType() === ModuleInstaller::PACKAGE_TYPE) {
+            $this->installer->skipInstallation(true);
+
+            $this->pendingPackages[$package->getName()] = $operation;
+        }
+
+        // If root packages gets updated, reinstall all webtrees-module packages
+        if (
+            ($operation instanceof UpdateOperation)
+            && ($package->getName() === ModuleInstaller::ROOT_PACKAGE_NAME)
+        ) {
+            $canonicalPackages = $this->composer
+                ->getRepositoryManager()
+                ->getLocalRepository()
+                ->getCanonicalPackages();
+
+            foreach ($canonicalPackages as $canonicalPackage) {
+                if ($canonicalPackage->getType() !== ModuleInstaller::PACKAGE_TYPE) {
+                    continue;
+                }
+
+                if (!isset($this->pendingPackages[$canonicalPackage->getName()])) {
+                    $this->pendingPackages[$canonicalPackage->getName()] = new InstallOperation($canonicalPackage);
+                }
+            }
+        }
     }
 
     /**
-     * Installs modules only if the fisharebest/webtrees package is installed.
+     * Retrieves the package associated with the given operation.
      *
-     * @param Event $event
+     * @param InstallOperation|UpdateOperation|UninstallOperation $operation the operation instance
+     *
+     * @return PackageInterface the package associated with the operation
+     */
+    private function getPackageFromOperation(InstallOperation|UpdateOperation|UninstallOperation $operation): PackageInterface
+    {
+        if ($operation instanceof UpdateOperation) {
+            return $operation->getTargetPackage();
+        }
+
+        return $operation->getPackage();
+    }
+
+    /**
+     * Handles the post-package event to process package operations.
+     *
+     * This method is responsible for processing pending package operations
+     * such as installations, updates, and removals for Webtrees modules.
+     * It writes the results of the operations to the I/O interface and
+     * executes the installation manager to perform the necessary actions.
+     *
+     * @param PackageEvent $event the package event triggered by Composer
      *
      * @return void
      */
-    public function installModules(Event $event): void
+    public function onPostPackageEvent(PackageEvent $event): void
     {
-        // Check if the package "fisharebest/webtrees" is installed
-        $webtreesPackage = $event
-            ->getComposer()
-            ->getRepositoryManager()
-            ->getLocalRepository()
-            ->findPackage(
-                Config::ROOT_PACKAGE_NAME,
-                '*'
-            );
-
-        if ($webtreesPackage === null) {
-            $event->getIO()->write(
-                '<info>Skipping webtrees module installation as "fisharebest/webtrees" is not installed.</info>'
-            );
-
+        // Skip because there are no pending packages to install
+        if ($this->pendingPackages === []) {
             return;
         }
 
-        if ($this->pendingModules === []) {
-            $event->getIO()->write('<info>No webtrees modules to install/update.</info>');
-
+        // Skip because the package "fisharebest/webtrees" is missing
+        if ($this->installer->findWebtreesBasePath() === null) {
             return;
         }
 
-        $event->getIO()->write('<info>Installing webtrees modules...</info>');
+        $this->io->write('<info>Processing Webtrees modules in the "modules_v4" directory</info>');
 
-        foreach ($this->pendingModules as $module) {
-            $path        = $module['path'];
-            $packageName = $module['package']->getPrettyName();
+        $counters = [
+            'install'   => 0,
+            'update'    => 0,
+            'uninstall' => 0,
+        ];
 
-            // Handle promise if needed
-            $event->getIO()->write(
-                sprintf(
-                    '  - Installing module <info>%s</info> (<comment>%s</comment>) to %s',
-                    $module['package']->getPrettyName(),
-                    $module['package']->getFullPrettyVersion(),
-                    $path
-                )
-            );
+        foreach ($this->pendingPackages as $operation) {
+            $type = $operation->getOperationType();
+
+            if (isset($counters[$type])) {
+                ++$counters[$type];
+            }
         }
 
-        // Reset the pending modules array after installation
-        $this->pendingModules = [];
+        $this->io->write(
+            sprintf(
+                '<info>Package operations: %d install%s, %d update%s, %d removal%s</info>',
+                $counters['install'],
+                $counters['install'] === 1 ? '' : 's',
+                $counters['update'],
+                $counters['update'] === 1 ? '' : 's',
+                $counters['uninstall'],
+                $counters['uninstall'] === 1 ? '' : 's',
+            )
+        );
+
+        // Get the installation manager and local repository
+        $installManager  = $this->composer->getInstallationManager();
+        $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
+        $devMode         = $localRepository->getDevMode() ?? true;
+
+        $this->installer->skipInstallation(false);
+
+        // Execute the installation manager to perform the pending operations
+        $installManager->execute(
+            $localRepository,
+            $this->pendingPackages,
+            $devMode,
+            false
+        );
+
+        $this->pendingPackages = [];
     }
 }
