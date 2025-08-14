@@ -24,7 +24,10 @@
         }
     },
     "extra": {
-        "class": "MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin"
+        "class": "MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin",
+        "branch-alias": {
+            "dev-WIP": "1.8.x-dev"
+        }
     },
     "config": {
         "bin-dir": ".build/bin",
