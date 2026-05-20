@@ -15,11 +15,16 @@ use Composer\Config;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
+use Override;
 use React\Promise\PromiseInterface;
 use ReflectionClass;
+use RuntimeException;
 
+use function explode;
+use function is_dir;
 use function is_string;
 use function React\Promise\resolve;
+use function rtrim;
 
 /**
  * ModuleInstaller is responsible for handling the installation of packages with the type `webtrees-module`.
@@ -34,36 +39,30 @@ class ModuleInstaller extends LibraryInstaller
 {
     /**
      * The name of the root package.
-     *
-     * @var string
      */
-    public const ROOT_PACKAGE_NAME = 'fisharebest/webtrees';
+    public const string ROOT_PACKAGE_NAME = 'fisharebest/webtrees';
 
     /**
      * The package type used by this installer.
-     *
-     * @var string
      */
-    public const PACKAGE_TYPE = 'webtrees-module';
+    public const string PACKAGE_TYPE = 'webtrees-module';
 
     /**
      * The directory used to install the module into.
-     *
-     * @var string
      */
-    private const MODULES_DIR = 'modules_v4' . DIRECTORY_SEPARATOR;
+    private const string MODULES_DIR = 'modules_v4' . DIRECTORY_SEPARATOR;
 
     /**
      * Whether to skip the installation process of a package.
-     *
-     * @var bool
      */
     private bool $skipInstall = false;
 
     /**
+     * Executes the given operation unless skipInstall is set, in which case resolves immediately with null.
+     *
      * @template T
      *
-     * @param (callable(): (PromiseInterface<T>|T)) $operation
+     * @param (callable(): (PromiseInterface<T>|T)) $operation The operation to invoke when installation is not skipped
      *
      * @return PromiseInterface<T>|PromiseInterface<null>|T
      */
@@ -72,6 +71,15 @@ class ModuleInstaller extends LibraryInstaller
         return $this->skipInstall ? resolve(null) : $operation();
     }
 
+    /**
+     * Delegates the install operation to the parent unless skipInstall is active.
+     *
+     * @param InstalledRepositoryInterface $repo    The local repository the operation runs against
+     * @param PackageInterface             $package The package to install
+     *
+     * @return PromiseInterface<void|null>|null
+     */
+    #[Override]
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package): ?PromiseInterface
     {
         return $this->maybeSkip(
@@ -82,6 +90,16 @@ class ModuleInstaller extends LibraryInstaller
         );
     }
 
+    /**
+     * Delegates the update operation to the parent unless skipInstall is active.
+     *
+     * @param InstalledRepositoryInterface $repo    The local repository the operation runs against
+     * @param PackageInterface             $initial The currently installed package version
+     * @param PackageInterface             $target  The package version to update to
+     *
+     * @return PromiseInterface<void|null>|null
+     */
+    #[Override]
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target): ?PromiseInterface
     {
         return $this->maybeSkip(
@@ -93,6 +111,15 @@ class ModuleInstaller extends LibraryInstaller
         );
     }
 
+    /**
+     * Delegates the uninstall operation to the parent unless skipInstall is active.
+     *
+     * @param InstalledRepositoryInterface $repo    The local repository the operation runs against
+     * @param PackageInterface             $package The package to uninstall
+     *
+     * @return PromiseInterface<void|null>|null
+     */
+    #[Override]
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package): ?PromiseInterface
     {
         return $this->maybeSkip(
@@ -106,10 +133,14 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * Determines and returns the installation path for a given package.
      *
-     * @param PackageInterface $package the package instance for which the installation path is to be determined
+     * @param PackageInterface $package The package instance for which the installation path is to be determined
      *
-     * @return string the resolved installation path for the specified package
+     * @return string The resolved installation path for the specified package
+     *
+     * @throws RuntimeException When the webtrees base path cannot be resolved from either the local
+     *                          repository or the configured vendor directory
      */
+    #[Override]
     public function getInstallPath(PackageInterface $package): string
     {
         $parts           = explode('/', $package->getPrettyName(), 2);
@@ -126,6 +157,12 @@ class ModuleInstaller extends LibraryInstaller
             }
         }
 
+        if ($webtreesPath === null) {
+            throw new RuntimeException(
+                'Cannot determine webtrees installation path; ensure fisharebest/webtrees is installed.'
+            );
+        }
+
         return $webtreesPath
             . DIRECTORY_SEPARATOR . self::MODULES_DIR . $packageBaseName;
     }
@@ -138,7 +175,7 @@ class ModuleInstaller extends LibraryInstaller
      * installation path is returned. If the webtrees package is set as the root package,
      * then the base directory of the Composer configuration is returned.
      *
-     * @return string|null the base path of the webtrees installation if found, or null if it cannot be determined
+     * @return string|null The base path of the webtrees installation if found, or null if it cannot be determined
      */
     public function findWebtreesBasePath(): ?string
     {
@@ -182,9 +219,9 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * Retrieves the base directory of the Composer configuration.
      *
-     * @param Config $config the Composer configuration instance containing the base directory information
+     * @param Config $config The Composer configuration instance containing the base directory information
      *
-     * @return string|null the base directory of the Composer setup if available, or null if it could not be determined
+     * @return string|null The base directory of the Composer setup if available, or null if it could not be determined
      */
     private function getComposerBaseDir(Config $config): ?string
     {
@@ -203,7 +240,7 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * Sets whether the installation process should be skipped.
      *
-     * @param bool $skip a boolean value indicating whether to skip the installation (true to skip, false otherwise)
+     * @param bool $skip A boolean value indicating whether to skip the installation (true to skip, false otherwise)
      *
      * @return void
      */

@@ -34,19 +34,10 @@ use function sprintf;
  */
 class ModuleInstallerPlugin implements PluginInterface
 {
-    /**
-     * @var Composer
-     */
     private Composer $composer;
 
-    /**
-     * @var IOInterface
-     */
     private IOInterface $io;
 
-    /**
-     * @var ModuleInstaller
-     */
     private ModuleInstaller $installer;
 
     /**
@@ -58,8 +49,8 @@ class ModuleInstallerPlugin implements PluginInterface
      * Activates the plugin by initializing and registering the custom module installer,
      * as well as subscribing to package-level events handled by the Composer event dispatcher.
      *
-     * @param Composer    $composer the Composer instance to be configured with the custom installer
-     * @param IOInterface $io       the input/output interface to enable interaction with Composer
+     * @param Composer    $composer The Composer instance to be configured with the custom installer
+     * @param IOInterface $io       The input/output interface to enable interaction with Composer
      *
      * @return void
      */
@@ -89,8 +80,8 @@ class ModuleInstallerPlugin implements PluginInterface
     /**
      * Deactivates the plugin.
      *
-     * @param Composer    $composer the Composer instance
-     * @param IOInterface $io       the input/output interface
+     * @param Composer    $composer The Composer instance
+     * @param IOInterface $io       The input/output interface
      *
      * @return void
      */
@@ -102,8 +93,8 @@ class ModuleInstallerPlugin implements PluginInterface
     /**
      * Uninstalls the plugin.
      *
-     * @param Composer    $composer the Composer instance
-     * @param IOInterface $io       the input/output interface
+     * @param Composer    $composer The Composer instance
+     * @param IOInterface $io       The input/output interface
      *
      * @return void
      */
@@ -115,7 +106,7 @@ class ModuleInstallerPlugin implements PluginInterface
     /**
      * Handles actions to be performed before a package operation is executed.
      *
-     * @param PackageEvent $event the package event instance
+     * @param PackageEvent $event The package event instance
      *
      * @return void
      */
@@ -158,9 +149,9 @@ class ModuleInstallerPlugin implements PluginInterface
     /**
      * Retrieves the package associated with the given operation.
      *
-     * @param InstallOperation|UpdateOperation|UninstallOperation $operation the operation instance
+     * @param InstallOperation|UpdateOperation|UninstallOperation $operation The operation instance
      *
-     * @return PackageInterface the package associated with the operation
+     * @return PackageInterface The package associated with the operation
      */
     private function getPackageFromOperation(InstallOperation|UpdateOperation|UninstallOperation $operation): PackageInterface
     {
@@ -179,7 +170,7 @@ class ModuleInstallerPlugin implements PluginInterface
      * It writes the results of the operations to the I/O interface and
      * executes the installation manager to perform the necessary actions.
      *
-     * @param PackageEvent $event the package event triggered by Composer
+     * @param PackageEvent $event The package event triggered by Composer
      *
      * @return void
      */

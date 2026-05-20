@@ -26,7 +26,7 @@
     "extra": {
         "class": "MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin",
         "branch-alias": {
-            "dev-master": "1.9.x-dev"
+            "dev-main": "2.0.x-dev"
         }
     },
     "config": {
@@ -37,12 +37,12 @@
         "optimize-autoloader": true
     },
     "require": {
-        "php": ">=8.2.0 <8.5.0",
+        "php": "8.3 - 8.5",
         "composer-plugin-api": "^2.6"
     },
     "require-dev": {
         "composer/composer": "^2.8",
-        "friendsofphp/php-cs-fixer": "^3.85",
+        "friendsofphp/php-cs-fixer": "^3.0",
         "overtrue/phplint": "^9.0",
         "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
@@ -51,7 +51,7 @@
     },
     "scripts": {
         "ci:cgl": [
-            "php-cs-fixer fix --config .php-cs-fixer.dist.php --diff --verbose --cache-file .build/.php-cs-fixer.cache"
+            "php-cs-fixer fix --config .php-cs-fixer.dist.php --diff --verbose"
         ],
         "ci:rector": [
             "rector process --config rector.php"

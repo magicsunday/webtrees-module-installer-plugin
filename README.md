@@ -85,10 +85,10 @@ composer config repositories.your-repo-name vcs https://github.com/your-vendor-n
 composer require your-vendor-name/your-module-name[:optional-branch-name]
 ```
 
-For example, to install the dev-master branch:
+For example, to install the dev-main branch:
 
 ```bash
-composer require your-vendor-name/your-module-name:dev-master
+composer require your-vendor-name/your-module-name:dev-main
 ```
 
 ## 🧪 Testing
