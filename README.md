@@ -22,7 +22,7 @@ When developing or using modules for webtrees, managing the installation process
 
 ## 📋 Requirements
 ### System Requirements
-- PHP 8.2 or higher (compatible up to PHP 8.4)
+- PHP 8.3 – 8.5
 - Composer 2.6 or higher
 
 ## 🔧 Installation
@@ -30,7 +30,7 @@ Add this plugin to the `require` or `require-dev` section of your `composer.json
 
 ```json
 "require": {
-    "magicsunday/webtrees-module-installer-plugin": "^1.6"
+    "magicsunday/webtrees-module-installer-plugin": "^2.0"
 },
 ```
 
@@ -69,7 +69,8 @@ When creating a webtrees module, set the package type to `webtrees-module` in yo
     "description": "Your module description",
     "type": "webtrees-module",
     "require": {
-        "php": ">=8.2.0"
+        "php": "8.3 - 8.5",
+        "magicsunday/webtrees-module-installer-plugin": "^2.0"
     }
 }
 ```
@@ -99,8 +100,8 @@ The plugin includes several testing tools to ensure code quality:
 composer ci:test
 
 # Run specific tests
-composer ci:test:php:phpstan  # Static analysis
 composer ci:test:php:lint     # PHP linting
+composer ci:test:php:phpstan  # Static analysis
 composer ci:test:php:rector   # Code quality checks
 composer ci:test:php:cgl      # Coding guidelines
 ```
@@ -109,14 +110,13 @@ composer ci:test:php:cgl      # Coding guidelines
 The plugin works by:
 
 1. Registering a custom installer with Composer's installation manager
-2. Detecting packages with the `webtrees-module` type
-3. Determining the correct installation path in the `modules_v4` directory
-4. Handling both direct installation and installation via a separate composer.json
+2. Subscribing to package-level events (`PRE_PACKAGE_*` / `POST_PACKAGE_*`) to queue `webtrees-module` operations
+3. Determining the correct installation path in the `modules_v4` directory, whether `fisharebest/webtrees` is installed as a dependency or as the root package
+4. Re-installing all `webtrees-module` packages when `fisharebest/webtrees` itself is updated, so the modules survive the core upgrade
 
 The main components are:
-- `ModuleInstallerPlugin`: Implements Composer's PluginInterface
-- `ModuleInstaller`: Extends Composer's LibraryInstaller to handle module installation
-- `Config`: Manages configuration settings and path resolution
+- `ModuleInstallerPlugin`: Implements Composer's `PluginInterface` and wires up the event listeners
+- `ModuleInstaller`: Extends Composer's `LibraryInstaller`; resolves the install path and delegates the actual install/update/uninstall operation
 
 ## 👥 Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
