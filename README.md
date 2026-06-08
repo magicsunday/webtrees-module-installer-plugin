@@ -15,8 +15,8 @@ Simple setup with minimal configuration required in your composer.json file.
 ## 🌟 Why Use This Plugin?
 When developing or using modules for webtrees, managing the installation process can be cumbersome. This plugin solves that problem by:
 
-- Automatically detecting and installing modules with the `webtrees-module` type
-- Placing modules in the correct `modules_v4` directory structure
+- Automatically detecting and installing packages of type `webtrees-module` and `webtrees-theme`
+- Placing modules and themes in the correct `modules_v4` directory structure
 - Supporting both direct installation and installation via a separate composer.json
 - Eliminating the need for manual file copying or symlink creation
 
@@ -78,6 +78,21 @@ When creating a webtrees module, set the package type to `webtrees-module` in yo
 #### Pro Tip
 The module name in the composer.json file will determine the directory name in the `modules_v4` directory.
 
+#### Themes
+Themes are installed exactly like modules. Since a webtrees theme is a module as well, set the package type to `webtrees-theme` and it will be placed in the same `modules_v4` directory:
+
+```json
+{
+    "name": "your-vendor-name/your-theme-name",
+    "description": "Your theme description",
+    "type": "webtrees-theme",
+    "require": {
+        "php": "8.3 - 8.5",
+        "magicsunday/webtrees-module-installer-plugin": "^2.0"
+    }
+}
+```
+
 ### Installing from GitHub
 If your module is not listed on Packagist, you can install it directly from GitHub:
 
@@ -104,15 +119,16 @@ composer ci:test:php:lint     # PHP linting
 composer ci:test:php:phpstan  # Static analysis
 composer ci:test:php:rector   # Code quality checks
 composer ci:test:php:cgl      # Coding guidelines
+composer ci:test:php:unit     # Unit tests (PHPUnit)
 ```
 
 ## 🔍 How It Works
 The plugin works by:
 
 1. Registering a custom installer with Composer's installation manager
-2. Subscribing to package-level events (`PRE_PACKAGE_*` / `POST_PACKAGE_*`) to queue `webtrees-module` operations
+2. Subscribing to package-level events (`PRE_PACKAGE_*` / `POST_PACKAGE_*`) to queue `webtrees-module` and `webtrees-theme` operations
 3. Determining the correct installation path in the `modules_v4` directory, whether `fisharebest/webtrees` is installed as a dependency or as the root package
-4. Re-installing all `webtrees-module` packages when `fisharebest/webtrees` itself is updated, so the modules survive the core upgrade
+4. Re-installing all `webtrees-module` and `webtrees-theme` packages when `fisharebest/webtrees` itself is updated, so the modules and themes survive the core upgrade
 
 The main components are:
 - `ModuleInstallerPlugin`: Implements Composer's `PluginInterface` and wires up the event listeners

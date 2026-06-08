@@ -24,9 +24,9 @@ use Composer\Plugin\PluginInterface;
 use function sprintf;
 
 /**
- * A Composer plugin to handle the installation, update, and uninstallation of webtrees modules.
+ * A Composer plugin to handle the installation, update, and uninstallation of webtrees modules and themes.
  * This plugin listens to various Composer events and manages the deployment of packages of type
- * "webtrees-module" into a specific target directory within the webtrees application.
+ * "webtrees-module" and "webtrees-theme" into a specific target directory within the webtrees application.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -118,13 +118,13 @@ class ModuleInstallerPlugin implements PluginInterface
         $operation = $event->getOperation();
         $package   = $this->getPackageFromOperation($operation);
 
-        if ($package->getType() === ModuleInstaller::PACKAGE_TYPE) {
+        if ($this->installer->supports($package->getType())) {
             $this->installer->skipInstallation(true);
 
             $this->pendingPackages[$package->getName()] = $operation;
         }
 
-        // If root packages gets updated, reinstall all webtrees-module packages
+        // If the root package gets updated, reinstall all packages handled by this installer
         if (
             ($operation instanceof UpdateOperation)
             && ($package->getName() === ModuleInstaller::ROOT_PACKAGE_NAME)
@@ -135,7 +135,7 @@ class ModuleInstallerPlugin implements PluginInterface
                 ->getCanonicalPackages();
 
             foreach ($canonicalPackages as $canonicalPackage) {
-                if ($canonicalPackage->getType() !== ModuleInstaller::PACKAGE_TYPE) {
+                if (!$this->installer->supports($canonicalPackage->getType())) {
                     continue;
                 }
 
