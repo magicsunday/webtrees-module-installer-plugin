@@ -27,9 +27,10 @@ use function React\Promise\resolve;
 use function rtrim;
 
 /**
- * ModuleInstaller is responsible for handling the installation of packages with the type `webtrees-module`.
- * It integrates with Composer's library installation process and ensures modules are correctly placed
- * into the appropriate path within the `fisharebest/webtrees` directory structure if installed.
+ * ModuleInstaller is responsible for handling the installation of packages of type `webtrees-module`
+ * and `webtrees-theme`. It integrates with Composer's library installation process and ensures modules
+ * and themes are correctly placed into the appropriate path within the `fisharebest/webtrees` directory
+ * structure if installed.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -48,6 +49,12 @@ class ModuleInstaller extends LibraryInstaller
     public const string PACKAGE_TYPE = 'webtrees-module';
 
     /**
+     * The theme package type handled by this installer. Themes are webtrees modules too and
+     * therefore install into the same `modules_v4` directory.
+     */
+    public const string PACKAGE_TYPE_THEME = 'webtrees-theme';
+
+    /**
      * The directory used to install the module into.
      */
     private const string MODULES_DIR = 'modules_v4' . DIRECTORY_SEPARATOR;
@@ -56,6 +63,23 @@ class ModuleInstaller extends LibraryInstaller
      * Whether to skip the installation process of a package.
      */
     private bool $skipInstall = false;
+
+    /**
+     * Determines whether this installer handles packages of the given type.
+     *
+     * Both `webtrees-module` and `webtrees-theme` packages are handled, as webtrees themes
+     * are modules as well and live in the same `modules_v4` directory.
+     *
+     * @param string $packageType The composer package type to check
+     *
+     * @return bool True if the package type is handled by this installer
+     */
+    #[Override]
+    public function supports(string $packageType): bool
+    {
+        return ($packageType === self::PACKAGE_TYPE)
+            || ($packageType === self::PACKAGE_TYPE_THEME);
+    }
 
     /**
      * Executes the given operation unless skipInstall is set, in which case resolves immediately with null.
