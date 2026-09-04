@@ -139,9 +139,7 @@ class ModuleInstallerPlugin implements PluginInterface
                     continue;
                 }
 
-                if (!isset($this->pendingPackages[$canonicalPackage->getName()])) {
-                    $this->pendingPackages[$canonicalPackage->getName()] = new InstallOperation($canonicalPackage);
-                }
+                $this->pendingPackages[$canonicalPackage->getName()] ??= new InstallOperation($canonicalPackage);
             }
         }
     }
