@@ -16,5 +16,6 @@ composer.lock
 .phplint.cache
 .phpunit.result.cache
 .phpunit.cache
+/.deptrac.cache
 
 # Custom

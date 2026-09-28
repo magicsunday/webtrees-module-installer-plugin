@@ -1,0 +1,47 @@
+# Architecture layers for magicsunday/webtrees-module-installer-plugin.
+#
+# The canonical layer definitions and ruleset come from the shared coding-standard import.
+# Nothing lives under a Support, Enum, Model, Configuration, Contract, Repository, Adapter,
+# Service, Facade or Module namespace, so those shared layers stay empty here.
+#
+# The plugin holds two classes under src/Composer, each in a package-local layer of its own:
+#
+#   - Installer: ModuleInstaller, the LibraryInstaller that resolves the modules_v4 path and
+#     delegates the actual install/update/uninstall to Composer.
+#   - Plugin: ModuleInstallerPlugin, the Composer entry point that creates the installer,
+#     registers it and queues the webtrees-module/webtrees-theme operations.
+#
+# The layers form one total order, lowest first, and a layer lists only layers below it:
+#
+#   Installer < Plugin
+#
+# so the installer never reaches back into the plugin that drives it, and the layer-cycle
+# gate (check-deptrac-cycles.php, part of `composer ci:test:php:deptrac`) proves the
+# measured graph has no cycle. Dependencies on Composer itself are uncovered and not checked.
+
+imports:
+    - .build/vendor/magicsunday/coding-standard/deptrac/layers.yaml
+
+deptrac:
+    paths:
+        - src
+
+    layers:
+        -
+            name: Installer
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Composer\\ModuleInstaller$#'
+        -
+            name: Plugin
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Composer\\ModuleInstallerPlugin$#'
+
+    ruleset:
+        Installer: ~
+        # Plugin: the composition root, the top of the graph; no layer depends on it.
+        Plugin:
+            - Installer

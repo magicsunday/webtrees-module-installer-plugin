@@ -1,17 +1,18 @@
 {
-    "format": [
-        "php"
-    ],
     "threshold": 0,
+    "minTokens": 100,
+    "minLines": 5,
+    "exitCode": 1,
     "reporters": [
         "console-full"
     ],
-    "minTokens": 100,
-    "minLines": 5,
+    "absolute": true,
+    "gitignore": true,
+    "format": [
+        "php"
+    ],
     "path": [
         "src",
         "tests"
-    ],
-    "ignore": [],
-    "exitCode": 1
+    ]
 }

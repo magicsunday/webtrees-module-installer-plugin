@@ -108,7 +108,7 @@ composer require your-vendor-name/your-module-name:dev-main
 ```
 
 ## 🧪 Testing
-The plugin includes several testing tools to ensure code quality:
+The quality tooling comes from [magicsunday/coding-standard](https://github.com/magicsunday/coding-standard) (^3.0): the php-cs-fixer, PHPStan (level max, checked exceptions) and Rector configs are the shared ones, and Deptrac enforces the layer rules in `deptrac.yaml`.
 
 ```bash
 # Run all tests
@@ -119,7 +119,10 @@ composer ci:test:php:lint     # PHP linting
 composer ci:test:php:phpstan  # Static analysis
 composer ci:test:php:rector   # Code quality checks
 composer ci:test:php:cgl      # Coding guidelines
+composer ci:test:php:deptrac  # Layer boundaries, unassigned classes, layer cycles (Deptrac)
+composer ci:test:php:templates # coding-standard template lockstep check
 composer ci:test:php:unit     # Unit tests (PHPUnit)
+composer ci:test:php:cpd      # Copy-paste detection (jscpd)
 ```
 
 ## 🔍 How It Works
