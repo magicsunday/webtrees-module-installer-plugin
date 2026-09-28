@@ -47,13 +47,7 @@
     },
     "require-dev": {
         "composer/composer": "^2.8",
-        "friendsofphp/php-cs-fixer": "^3.0",
-        "overtrue/phplint": "^9.0",
-        "phpstan/phpstan": "^2.0",
-        "phpstan/phpstan-strict-rules": "^2.0",
-        "phpstan/phpstan-deprecation-rules": "^2.0",
-        "phpunit/phpunit": "^12.0",
-        "rector/rector": "^2.0"
+        "magicsunday/coding-standard": "^3.0"
     },
     "scripts": {
         "ci:cgl": [
@@ -71,31 +65,40 @@
         "ci:test:php:phpstan": [
             "phpstan analyze --configuration phpstan.neon --memory-limit=-1"
         ],
-        "ci:test:php:unit": [
-            "phpunit --configuration phpunit.xml"
-        ],
-        "ci:test:php:phpstan:baseline": [
-            "phpstan analyze --configuration phpstan.neon --memory-limit=-1 --generate-baseline phpstan-baseline.neon --allow-empty-baseline"
-        ],
         "ci:test:php:rector": [
             "@ci:rector --dry-run"
         ],
+        "ci:test:php:unit": [
+            "phpunit --configuration phpunit.xml"
+        ],
+        "ci:test:php:cpd": [
+            "npx --prefix .build jscpd --config .jscpd.json --skip-comments --no-tips"
+        ],
+        "ci:test:php:templates": [
+            "check-consumer-config.php ."
+        ],
+        "ci:test:php:deptrac": [
+            "deptrac analyse --no-progress",
+            "deptrac debug:unassigned",
+            "@php -r \"is_dir('.build') || mkdir('.build', 0777, true);\"",
+            "deptrac analyse --no-progress --formatter=graphviz-dot --output=.build/deptrac-layers.dot",
+            "check-deptrac-cycles.php .build/deptrac-layers.dot"
+        ],
         "ci:test": [
             "@ci:test:php:lint",
-            "@ci:test:php:phpstan",
-            "@ci:test:php:rector",
             "@ci:test:php:cgl",
+            "@ci:test:php:rector",
+            "@ci:test:php:phpstan",
+            "@ci:test:php:deptrac",
+            "@ci:test:php:templates",
             "@ci:test:php:unit",
             "@ci:test:php:cpd"
         ],
-        "ci:test:php:cpd": [
-            "npx jscpd --config .jscpd.json --skip-comments --no-tips"
-        ],
         "post-install-cmd": [
-            "npm install jscpd@^5.0.11"
+            "npm install --prefix .build jscpd@^5.0.11"
         ],
         "post-update-cmd": [
-            "npm install jscpd@^5.0.11"
+            "npm install --prefix .build jscpd@^5.0.11"
         ]
     }
 }

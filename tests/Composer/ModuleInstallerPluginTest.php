@@ -66,7 +66,7 @@ class ModuleInstallerPluginTest extends TestCase
      */
     private function createInstallEvent(Package $package): PackageEvent
     {
-        $event = $this->createStub(PackageEvent::class);
+        $event = self::createStub(PackageEvent::class);
         $event->method('getOperation')->willReturn(new InstallOperation($package));
 
         return $event;
@@ -81,7 +81,7 @@ class ModuleInstallerPluginTest extends TestCase
      */
     private function createUpdateEvent(Package $package): PackageEvent
     {
-        $event = $this->createStub(PackageEvent::class);
+        $event = self::createStub(PackageEvent::class);
         $event->method('getOperation')->willReturn(new UpdateOperation($package, $package));
 
         return $event;
@@ -96,13 +96,13 @@ class ModuleInstallerPluginTest extends TestCase
      */
     private function createComposerWithCanonicalPackages(array $packages): Composer
     {
-        $localRepository = $this->createStub(InstalledRepositoryInterface::class);
+        $localRepository = self::createStub(InstalledRepositoryInterface::class);
         $localRepository->method('getCanonicalPackages')->willReturn($packages);
 
-        $repositoryManager = $this->createStub(RepositoryManager::class);
+        $repositoryManager = self::createStub(RepositoryManager::class);
         $repositoryManager->method('getLocalRepository')->willReturn($localRepository);
 
-        $composer = $this->createStub(Composer::class);
+        $composer = self::createStub(Composer::class);
         $composer->method('getRepositoryManager')->willReturn($repositoryManager);
 
         return $composer;
@@ -122,7 +122,7 @@ class ModuleInstallerPluginTest extends TestCase
 
         $reflection->getProperty('installer')->setValue($plugin, $this->createModuleInstaller());
 
-        if ($composer !== null) {
+        if ($composer instanceof Composer) {
             $reflection->getProperty('composer')->setValue($plugin, $composer);
         }
 
@@ -132,7 +132,7 @@ class ModuleInstallerPluginTest extends TestCase
     /**
      * Reads the plugin's pending package operations keyed by package name.
      *
-     * @param ModuleInstallerPlugin                $plugin     The plugin to inspect
+     * @param ModuleInstallerPlugin                  $plugin     The plugin to inspect
      * @param ReflectionClass<ModuleInstallerPlugin> $reflection A reflection handle for the plugin
      *
      * @return array<string, InstallOperation|UpdateOperation|UninstallOperation>

@@ -42,12 +42,12 @@ trait CreatesModuleInstaller
             ],
         ]);
 
-        $composer = $this->createStub(Composer::class);
+        $composer = self::createStub(Composer::class);
         $composer->method('getConfig')->willReturn($config);
-        $composer->method('getDownloadManager')->willReturn($this->createStub(DownloadManager::class));
+        $composer->method('getDownloadManager')->willReturn(self::createStub(DownloadManager::class));
 
         return new ModuleInstaller(
-            $this->createStub(IOInterface::class),
+            self::createStub(IOInterface::class),
             $composer,
             ModuleInstaller::PACKAGE_TYPE
         );
