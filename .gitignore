@@ -11,6 +11,9 @@ composer.lock
 # Build stuff
 .build/
 
+# Node
+node_modules/
+
 # Cache
 .php-cs-fixer.cache
 .phplint.cache
