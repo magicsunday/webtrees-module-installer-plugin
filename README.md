@@ -122,7 +122,7 @@ composer ci:test:php:cgl      # Coding guidelines
 composer ci:test:php:deptrac  # Layer boundaries, unassigned classes, layer cycles (Deptrac)
 composer ci:test:php:templates # coding-standard template lockstep check
 composer ci:test:php:unit     # Unit tests (PHPUnit)
-composer ci:test:php:cpd      # Copy-paste detection (jscpd)
+composer ci:test:php:cpd      # Copy-paste detection (jscpd, needs `npm ci` once)
 ```
 
 ## 🔍 How It Works

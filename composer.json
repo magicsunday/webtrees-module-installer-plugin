@@ -72,7 +72,7 @@
             "phpunit --configuration phpunit.xml"
         ],
         "ci:test:php:cpd": [
-            "npx --prefix .build jscpd --config .jscpd.json --skip-comments --no-tips"
+            "node_modules/.bin/jscpd --config .jscpd.json --skip-comments --no-tips --fail-on-empty"
         ],
         "ci:test:php:templates": [
             "check-consumer-config.php ."
@@ -93,12 +93,6 @@
             "@ci:test:php:templates",
             "@ci:test:php:unit",
             "@ci:test:php:cpd"
-        ],
-        "post-install-cmd": [
-            "npm install --prefix .build jscpd@^5.0.11"
-        ],
-        "post-update-cmd": [
-            "npm install --prefix .build jscpd@^5.0.11"
         ]
     }
 }
