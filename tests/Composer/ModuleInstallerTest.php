@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Test\Composer;
 
+use Composer\Package\Package;
 use MagicSunday\Webtrees\Composer\ModuleInstaller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -60,5 +61,24 @@ class ModuleInstallerTest extends TestCase
     public function doesNotSupportUnrelatedPackageType(): void
     {
         self::assertFalse($this->createModuleInstaller()->supports('library'));
+    }
+
+    /**
+     * Without an installed webtrees and without webtrees as the root package, the install path falls
+     * back to the modules directory below the vendor directory, named after the package without its vendor.
+     *
+     * @return void
+     */
+    #[Test]
+    public function installPathFallsBackToTheVendorDirectory(): void
+    {
+        $installer = $this->createModuleInstaller();
+        $package   = new Package('acme/hello-module', '1.0.0.0', '1.0.0');
+
+        self::assertSame(
+            'vendor' . DIRECTORY_SEPARATOR . 'fisharebest' . DIRECTORY_SEPARATOR . 'webtrees'
+                . DIRECTORY_SEPARATOR . 'modules_v4' . DIRECTORY_SEPARATOR . 'hello-module',
+            $installer->getInstallPath($package)
+        );
     }
 }
