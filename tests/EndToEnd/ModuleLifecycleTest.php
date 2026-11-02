@@ -240,6 +240,74 @@ final class ModuleLifecycleTest extends TestCase
     }
 
     /**
+     * A webtrees update must not lose the modules that are installed in its modules directory, because
+     * the plugin installs every module again afterwards.
+     *
+     * @param string $packageType The Composer package type of the module
+     *
+     * @return void
+     */
+    #[Test]
+    #[DataProvider('packageTypeProvider')]
+    public function updatingWebtreesInstallsTheModulesAgain(string $packageType): void
+    {
+        $project    = $this->workspace . '/project';
+        $modulesDir = $project . '/vendor/fisharebest/webtrees/modules_v4';
+
+        $this->writeWebtreesPackage(['modules_v4/' . self::EXAMPLE_DIRECTORY . '/module.php' => '<?php // shipped example']);
+
+        $this->writePackage(
+            $this->workspace . '/modules/' . self::MODULE_DIRECTORY,
+            [
+                'name'    => self::MODULE_NAME,
+                'type'    => $packageType,
+                'version' => '1.0.0',
+                'require' => ['fisharebest/webtrees' => '*'],
+            ],
+            ['module.php' => 'module content']
+        );
+
+        $this->writeProject($project, false, [self::MODULE_NAME => '*']);
+        $this->runComposer($project, 'install');
+
+        self::assertSame([self::EXAMPLE_DIRECTORY, self::MODULE_DIRECTORY], $this->listDirectory($modulesDir));
+
+        $this->writeWebtreesPackage(
+            [
+                'app/Added.php'                                         => '<?php // only in the newer webtrees',
+                'modules_v4/' . self::EXAMPLE_DIRECTORY . '/module.php' => '<?php // shipped example',
+            ],
+            '2.2.1'
+        );
+
+        $this->runComposer($project, 'update');
+
+        self::assertFileExists(
+            $project . '/vendor/fisharebest/webtrees/app/Added.php',
+            'The webtrees update must have run.'
+        );
+        self::assertSame(
+            [self::EXAMPLE_DIRECTORY, self::MODULE_DIRECTORY],
+            $this->listDirectory($modulesDir),
+            'The webtrees update must not lose the installed module.'
+        );
+        self::assertSame('module content', $this->readFile($modulesDir . '/' . self::MODULE_DIRECTORY . '/module.php'));
+    }
+
+    /**
+     * Provides the package types that the installer handles.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function packageTypeProvider(): array
+    {
+        return [
+            'module' => ['webtrees-module'],
+            'theme'  => ['webtrees-theme'],
+        ];
+    }
+
+    /**
      * Every queued operation runs exactly once, even when several modules are installed in one run
      * and Composer reports a package event after each of them.
      *
@@ -281,17 +349,18 @@ final class ModuleLifecycleTest extends TestCase
      * Writes the fake webtrees package, which is installed as a dependency of the scratch project.
      *
      * @param array<string, string> $extraFiles Further files of the package by relative path
+     * @param string                $version    The version of the package
      *
      * @return void
      */
-    private function writeWebtreesPackage(array $extraFiles): void
+    private function writeWebtreesPackage(array $extraFiles, string $version = '2.2.0'): void
     {
         $this->writePackage(
             $this->workspace . '/webtrees',
             [
                 'name'    => 'fisharebest/webtrees',
                 'type'    => 'library',
-                'version' => '2.2.0',
+                'version' => $version,
             ],
             ['app/Webtrees.php' => '<?php // webtrees'] + $extraFiles
         );
