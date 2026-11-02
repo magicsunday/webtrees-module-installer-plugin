@@ -16,6 +16,7 @@ use Composer\Config;
 use Composer\Downloader\DownloadManager;
 use Composer\IO\IOInterface;
 use MagicSunday\Webtrees\Composer\ModuleInstaller;
+use PHPUnit\Framework\MockObject\Stub;
 
 /**
  * Builds a real module installer whose framework collaborators are stubbed, so the installer's
@@ -28,11 +29,12 @@ use MagicSunday\Webtrees\Composer\ModuleInstaller;
 trait CreatesModuleInstaller
 {
     /**
-     * Creates a module installer backed by a minimally configured, stubbed Composer instance.
+     * Creates a Composer stub that carries a minimal configuration and a download manager, which is what
+     * the constructor of the installer reads.
      *
-     * @return ModuleInstaller
+     * @return Composer&Stub
      */
-    private function createModuleInstaller(): ModuleInstaller
+    private function createComposerStub(): Composer&Stub
     {
         $config = new Config(false);
         $config->merge([
@@ -46,9 +48,19 @@ trait CreatesModuleInstaller
         $composer->method('getConfig')->willReturn($config);
         $composer->method('getDownloadManager')->willReturn(self::createStub(DownloadManager::class));
 
+        return $composer;
+    }
+
+    /**
+     * Creates a module installer backed by a minimally configured, stubbed Composer instance.
+     *
+     * @return ModuleInstaller
+     */
+    private function createModuleInstaller(): ModuleInstaller
+    {
         return new ModuleInstaller(
             self::createStub(IOInterface::class),
-            $composer,
+            $this->createComposerStub(),
             ModuleInstaller::PACKAGE_TYPE
         );
     }

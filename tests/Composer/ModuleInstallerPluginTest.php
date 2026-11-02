@@ -11,11 +11,16 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Test\Composer;
 
+use Closure;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\Installer\InstallationManager;
 use Composer\Installer\PackageEvent;
+use Composer\Installer\PackageEvents;
+use Composer\IO\IOInterface;
 use Composer\Package\Package;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Repository\RepositoryManager;
@@ -26,6 +31,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 /**
  * Tests the package-event handling of the installer plugin. The plugin is wired to a real
@@ -219,5 +225,52 @@ class ModuleInstallerPluginTest extends TestCase
         self::assertArrayHasKey('vendor/canonical-theme', $pendingPackages);
         self::assertArrayHasKey('vendor/canonical-module', $pendingPackages);
         self::assertArrayNotHasKey('vendor/canonical-library', $pendingPackages);
+    }
+
+    /**
+     * Activating the plugin registers the installer with the installation manager and subscribes the
+     * pre handler to every pre package event and the post handler to every post package event.
+     *
+     * @return void
+     */
+    #[Test]
+    public function activateRegistersTheInstallerAndSubscribesTheHandlers(): void
+    {
+        $installationManager = $this->createMock(InstallationManager::class);
+        $installationManager
+            ->expects(self::once())
+            ->method('addInstaller')
+            ->with(self::isInstanceOf(ModuleInstaller::class));
+
+        /** @var array<string, string> $handlers */
+        $handlers   = [];
+        $dispatcher = self::createStub(EventDispatcher::class);
+        $dispatcher
+            ->method('addListener')
+            ->willReturnCallback(
+                static function (string $eventName, callable|string $listener) use (&$handlers): void {
+                    if ($listener instanceof Closure) {
+                        $handlers[$eventName] = (new ReflectionFunction($listener))->getName();
+                    }
+                }
+            );
+
+        $composer = $this->createComposerStub();
+        $composer->method('getInstallationManager')->willReturn($installationManager);
+        $composer->method('getEventDispatcher')->willReturn($dispatcher);
+
+        (new ModuleInstallerPlugin())->activate($composer, self::createStub(IOInterface::class));
+
+        self::assertSame(
+            [
+                PackageEvents::PRE_PACKAGE_INSTALL    => 'onPrePackageEvent',
+                PackageEvents::PRE_PACKAGE_UPDATE     => 'onPrePackageEvent',
+                PackageEvents::PRE_PACKAGE_UNINSTALL  => 'onPrePackageEvent',
+                PackageEvents::POST_PACKAGE_INSTALL   => 'onPostPackageEvent',
+                PackageEvents::POST_PACKAGE_UPDATE    => 'onPostPackageEvent',
+                PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostPackageEvent',
+            ],
+            $handlers
+        );
     }
 }
