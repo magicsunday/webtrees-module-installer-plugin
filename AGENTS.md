@@ -10,6 +10,11 @@ This file collects contributor conventions for the
 - The pull-request body closes the issue with `Closes #<N>` — the `GH-<N>: ` subject prefix is not a GitHub link and closes nothing.
 - Never add a `Co-Authored-By:` trailer or any other AI attribution.
 
+## Tests
+
+- `tests/Composer` mirrors `src/Composer` and tests the installer and the plugin with a stubbed Composer.
+- `tests/EndToEnd` runs the real Composer of the development dependencies in a scratch project that is built from local path repositories, so it needs no network. It checks the modules directory on the file system after install, update and removal. It is the only suite that sees what the plugin writes and deletes.
+
 <!-- testing-policy:begin v1 -->
 ## Testing policy
 
